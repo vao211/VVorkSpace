@@ -16,7 +16,6 @@ def run_on_startup():
                           0, reg.KEY_SET_VALUE)
         reg.SetValueEx(key, app_name, 0, reg.REG_SZ, exe_path)
         reg.CloseKey(key)
-        messagebox.showinfo("Success", "Application added to startup successfully.")
     except Exception as e:
         messagebox.showerror("Error", f"Failed to add to startup:\n{e}")
 
