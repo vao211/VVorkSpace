@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 from tkinter import filedialog
 import win32com.client
 import shutil
+import json
 
 def app_init():
     global app, cur
@@ -210,6 +211,8 @@ def place_icon(file_path,icon_path, row, column):
             100,100,row, column,5,5
         )
         
+        load_button_info(file_path, icon_path, row, column)
+        
     except Exception as e:
         msb.CTkMessagebox.messagebox(
             title="Error!",text=f"Error placing icon: {e}",sound="off",button_text="OK",size="320x150",
@@ -217,8 +220,54 @@ def place_icon(file_path,icon_path, row, column):
             top=True
         )
 
+save_file = r"./bin/saved_buttons.json"
 
-       
+def load_saved_buttons():
+    if os.path.exists(save_file):
+        try:
+            with open(save_file, 'r') as f:
+                return json.load(f)
+        except:
+            return []
+    return []
+
+
+def load_button_info(file_path, icon_path, row, column):
+    buttons = load_saved_buttons()
+    
+    if os.path.dirname(icon_path) == 'button_icon':
+        icon_path = os.path.join('button_icon', os.path.basename(icon_path))
+    
+    button_info = {
+        'file_path': file_path,
+        'icon_path': icon_path,
+        'row': row,
+        'column': column
+    }
+    
+    buttons = [b for b in buttons if not (b['row'] == row and b['column'] == column)]
+    buttons.append(button_info)
+    
+    with open(save_file, 'w') as f:
+        json.dump(buttons, f, indent=4)
+        
+def restor_button_onStart():
+    buttons = load_saved_buttons()
+    for button in buttons:
+        try:
+            icon = Image.open(button['icon_path'])
+            icon = icon.resize((100, 100), Image.Resampling.LANCZOS)
+            icon_photo = ImageTk.PhotoImage(icon)
+            
+            add_button(app, None, icon_photo,
+                      lambda path=button['file_path']: open_app(path),
+                      "black", "black",
+                      100, 100,
+                      button['row'], button['column'],
+                      5, 5)
+        except Exception as e:
+            print(f"Error restoring button: {e}")
+            
 def add_app():
     add_app_window = ctk.CTkToplevel(app)
     add_app_window.title("Add an app to VVorkSpace")
@@ -250,6 +299,8 @@ def add_app():
     add_button(add_app_window, "Choose the folder", None, lambda: open_folder_dialog(), "blue", "blue", 0, 0, 3, 2, 20, 20)
     
 
+
+
 if __name__ == "__main__":
     app_init()
     
@@ -272,5 +323,7 @@ if __name__ == "__main__":
     add_button(app, None, defaut_img.get("img_add"), lambda: add_app(), "black", "black", 0, 0, 4, 0, 20, 20)
     #exit button
     add_button(app, None, defaut_img.get("img_exit"), app.destroy, "black", "black", 0, 0, 4, 7, 20, 20)
+
+    restor_button_onStart()
 
     app.mainloop()
