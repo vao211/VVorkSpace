@@ -231,7 +231,7 @@ def load_saved_buttons():
             return []
     return []
 
-
+# Thiếu tính năng copy icon vào folder button_icon
 def load_button_info(file_path, icon_path, row, column):
     buttons = load_saved_buttons()
     
@@ -298,8 +298,7 @@ def add_app():
     add_button(add_app_window, "Choose the app", None, lambda: open_file_dialog(), "blue", "blue", 0, 0, 2, 2, 20, 20)
     add_button(add_app_window, "Choose the folder", None, lambda: open_folder_dialog(), "blue", "blue", 0, 0, 3, 2, 20, 20)
     
-
-
+    
 
 if __name__ == "__main__":
     app_init()
