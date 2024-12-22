@@ -40,6 +40,14 @@ def app_init():
     app.grid_columnconfigure(6, weight=1)
     app.grid_columnconfigure(7, weight=0)
     
+    '''
+    [0, 0] [0, 1] [0, 2] [0, 3] [0, 4] [0, 5] [0, 6] [0, 7]
+    [1, 0] [1, 1] [1, 2] [1, 3] [1, 4] [1, 5] [1, 6] [1, 7]
+    [2, 0] [2, 1] [2, 2] [2, 3] [2, 4] [2, 5] [2, 6] [2, 7]
+    [3, 0] [3, 1] [3, 2] [3, 3] [3, 4] [3, 5] [3, 6] [3, 7]
+    [4, 0] [4, 1] [4, 2] [4, 3] [4, 4] [4, 5] [4, 6] [4, 7]
+    '''
+    
     #exit grid visualization
     app.bind("<Escape>", lambda event: visualize_grid(status=False))
     global frames
@@ -151,7 +159,7 @@ def choose_icon(file_path):
             
             shutil.copy2(icon_path, new_path)
             
-            choose_position(file_path,icon_path)
+            choose_position(file_path,new_path)  # * new_path
             
             return new_path
             
@@ -231,7 +239,7 @@ def load_saved_buttons():
             return []
     return []
 
-# Thiếu tính năng copy icon vào folder button_icon
+
 def load_button_info(file_path, icon_path, row, column):
     buttons = load_saved_buttons()
     
