@@ -75,6 +75,7 @@ def add_button(parent, text, image, command, bg_color, fg_color, width, height, 
                                 width=width, height=height)
     button.grid(row=row, column=column, padx=padx, pady=pady)
     button.configure(cursor=cur)
+    restore_button()
 
 def run_on_startup():
     create_shortcut(sys.executable,
@@ -280,7 +281,7 @@ def save_button_info(file_path, icon_path, row, column):   #icon_path = new_path
     with open(save_file, 'w') as f:
         json.dump(buttons, f, indent=4)
         
-def restor_button_onStart():
+def restore_button():
     buttons = load_saved_buttons()
     for button in buttons:
         try:
@@ -359,6 +360,6 @@ if __name__ == "__main__":
     #exit button
     add_button(app, None, defaut_img.get("img_exit"), app.destroy, "black", "black", 0, 0, 4, 7, 20, 20)
 
-    restor_button_onStart()
+    restore_button()
 
     app.mainloop()
