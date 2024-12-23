@@ -141,28 +141,28 @@ def choose_icon(file_path):
         ('Image files', '*.png;*.jpg;*.jpeg;*.ico'),
         ('PNG files', '*.png'),
         ('JPEG files', '*.jpg;*.jpeg'),
-        ('ICO files', '*.ico')
+        ('ICO files', '*.ico'),
     ]
     
     icon_path = filedialog.askopenfilename(
         title="Choose an icon",
-        filetypes=filetypes
+        filetypes = filetypes
     )
-    
+    #note: Thêm tính năg thêm tên app khi icon trống     
     if icon_path:
-        try:
+        try: #copy icon to button_icon folder
             if not os.path.exists('button_icon'):
                 os.makedirs('button_icon')
             
             new_filename = os.path.basename(icon_path)
-            new_path = os.path.join('button_icon', new_filename)
+            new_path = os.path.join('button_icon', new_filename) # newpath(icon_path) = ./button_path/name
             
             shutil.copy2(icon_path, new_path)
             
-            choose_position(file_path,new_path)  # * new_path
+            choose_position(file_path ,icon_path = new_path)  # * new_path
             
             return new_path
-            
+     
         except Exception as e:
             msb.CTkMessagebox.messagebox(
                 title="Error!",
@@ -176,7 +176,7 @@ def choose_icon(file_path):
             return None
     return None
 
-def choose_position(file_path, icon_path):
+def choose_position(file_path, icon_path): #icon_path = new_path = ./button_path/name
     position_window = ctk.CTkToplevel(app)
     position_window.title("Choose Position")
     position_window.resizable(False, False)
@@ -207,7 +207,7 @@ def choose_position(file_path, icon_path):
             button.configure(cursor=cur)
 
 
-def place_icon(file_path,icon_path, row, column):
+def place_icon(file_path,icon_path, row, column): #icon_path = new_path = ./button_path/name
     try:
         #tạo image
         icon = Image.open(icon_path)
@@ -219,8 +219,9 @@ def place_icon(file_path,icon_path, row, column):
             100,100,row, column,5,5
         )
         
-        load_button_info(file_path, icon_path, row, column)
-        
+        save_button_info(file_path, icon_path, row, column) #save to json for load on start up
+    
+
     except Exception as e:
         msb.CTkMessagebox.messagebox(
             title="Error!",text=f"Error placing icon: {e}",sound="off",button_text="OK",size="320x150",
@@ -240,11 +241,11 @@ def load_saved_buttons():
     return []
 
 
-def load_button_info(file_path, icon_path, row, column):
+def save_button_info(file_path, icon_path, row, column):   #icon_path = new_path = ./button_path/name
     buttons = load_saved_buttons()
     
-    if os.path.dirname(icon_path) == 'button_icon':
-        icon_path = os.path.join('button_icon', os.path.basename(icon_path))
+    # if os.path.dirname(icon_path) == 'button_icon':
+    #     icon_path = os.path.join('button_icon', os.path.basename(icon_path))  #os.path.basename(icon_path) == name of icon file
     
     button_info = {
         'file_path': file_path,
