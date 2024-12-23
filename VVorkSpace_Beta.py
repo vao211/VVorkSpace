@@ -69,13 +69,13 @@ def visualize_grid(status=True):
         frames.clear()
           
 def add_button(parent, text, image, command, bg_color, fg_color, width, height, row, column, padx, pady):
-    button = ctk.CTkButton(parent, text=text, 
+    button = ctk.CTkButton(parent, text=text,
                                 image=image, command=command, 
                                 bg_color=bg_color, fg_color=fg_color, 
                                 width=width, height=height)
     button.grid(row=row, column=column, padx=padx, pady=pady)
     button.configure(cursor=cur)
-    restore_button()
+
 
 def run_on_startup():
     create_shortcut(sys.executable,
@@ -225,7 +225,7 @@ def place_icon(file_path,icon_path, row, column): #icon_path = new_path = ./butt
             
             save_button_info(file_path, icon_path, row, column) #save to json for load on start up
         
-
+               
         except Exception as e:
             msb.CTkMessagebox.messagebox(
                 title="Error!",text=f"Error placing icon: {e}",sound="off",button_text="OK",size="320x150",
@@ -240,8 +240,8 @@ def place_icon(file_path,icon_path, row, column): #icon_path = new_path = ./butt
             add_button(app, app_name, defaut_app_icon ,lambda: open_app(file_path),
                 "black","black",
                 100,100,row, column,5,5
-            )
-            
+            )     
+                  
             save_button_info(file_path, icon_path, row, column)
         except Exception as e:
             msb.CTkMessagebox.messagebox(
