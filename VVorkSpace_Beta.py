@@ -75,7 +75,6 @@ def add_button(parent, text, image, command, bg_color, fg_color, width, height, 
                                 width=width, height=height)
     button.grid(row=row, column=column, padx=padx, pady=pady)
     button.configure(cursor=cur)
-    restore_button()
 
 def run_on_startup():
     create_shortcut(sys.executable,
