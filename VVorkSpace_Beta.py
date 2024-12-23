@@ -173,7 +173,9 @@ def choose_icon(file_path):
                 center=True,
                 top=True
             )
-            return None
+    else:
+        choose_position(file_path ,icon_path = None)
+        return None
     return None
 
 def choose_position(file_path, icon_path): #icon_path = new_path = ./button_path/name
@@ -208,26 +210,44 @@ def choose_position(file_path, icon_path): #icon_path = new_path = ./button_path
 
 
 def place_icon(file_path,icon_path, row, column): #icon_path = new_path = ./button_path/name
-    try:
-        #tạo image
-        icon = Image.open(icon_path)
-        icon = icon.resize((100, 100), Image.Resampling.LANCZOS)
-        icon_photo = ImageTk.PhotoImage(icon)
+    if icon_path != None:
+        try:
+            #tạo image
+            icon = Image.open(icon_path)
+            icon = icon.resize((100, 100), Image.Resampling.LANCZOS)
+            icon_photo = ImageTk.PhotoImage(icon)
+            
+            add_button(app, None, icon_photo,lambda: open_app(file_path),
+                "black","black",
+                100,100,row, column,5,5
+            )
+            
+            save_button_info(file_path, icon_path, row, column) #save to json for load on start up
         
-        add_button(app, None, icon_photo,lambda: open_app(file_path),
-            "black","black",
-            100,100,row, column,5,5
-        )
-        
-        save_button_info(file_path, icon_path, row, column) #save to json for load on start up
-    
 
-    except Exception as e:
-        msb.CTkMessagebox.messagebox(
-            title="Error!",text=f"Error placing icon: {e}",sound="off",button_text="OK",size="320x150",
-            center=True,
-            top=True
-        )
+        except Exception as e:
+            msb.CTkMessagebox.messagebox(
+                title="Error!",text=f"Error placing icon: {e}",sound="off",button_text="OK",size="320x150",
+                center=True,
+                top=True
+            )
+    #add name of app if icon_path == None:
+    else:
+        try:
+            app_name = os.path.basename(file_path)
+            defaut_app_icon = defaut_img.get("img_app_default")
+            add_button(app, app_name, defaut_app_icon ,lambda: open_app(file_path),
+                "black","black",
+                100,100,row, column,5,5
+            )
+            
+            save_button_info(file_path, icon_path, row, column)
+        except Exception as e:
+            msb.CTkMessagebox.messagebox(
+                title="Error!",text=f"Error placing icon: {e}",sound="off",button_text="OK",size="320x150",
+                center=True,
+                top=True
+            )
 
 save_file = r"./bin/saved_buttons.json"
 
@@ -264,16 +284,22 @@ def restor_button_onStart():
     buttons = load_saved_buttons()
     for button in buttons:
         try:
-            icon = Image.open(button['icon_path'])
-            icon = icon.resize((100, 100), Image.Resampling.LANCZOS)
-            icon_photo = ImageTk.PhotoImage(icon)
-            
-            add_button(app, None, icon_photo,
-                      lambda path=button['file_path']: open_app(path),
-                      "black", "black",
-                      100, 100,
-                      button['row'], button['column'],
-                      5, 5)
+            if button["icon_path"] is not None:
+                icon_photo = ImageTk.PhotoImage(Image.open(button['icon_path']).resize((100, 100), Image.Resampling.LANCZOS))
+                add_button(app, None, icon_photo,
+                        lambda path=button['file_path']: open_app(path),
+                        "black", "black",
+                        100, 100,
+                        button['row'], button['column'],
+                        5, 5)
+            else: #fix restore None icon app
+                icon_photo = defaut_img.get("img_app_default")
+                add_button(app, os.path.basename(button['file_path']), icon_photo,
+                        lambda path=button['file_path']: open_app(path),
+                        "black", "black",
+                        100, 100,
+                        button['row'], button['column'],
+                        5, 5)
         except Exception as e:
             print(f"Error restoring button: {e}")
             
@@ -319,7 +345,8 @@ if __name__ == "__main__":
         "img_create_shortcut": ImageTk.PhotoImage(Image.open(r"./button_icon/shortcut.png").resize((100, 100))),
         "img_add": ImageTk.PhotoImage(Image.open(r"./button_icon/add.png").resize((100, 100))),
         "img_exit": ImageTk.PhotoImage(Image.open(r"./button_icon/exit.png").resize((100, 100))),
-        "img_run_on_startup": ImageTk.PhotoImage(Image.open(r"./button_icon/run_on_startup.png").resize((100, 100)))
+        "img_run_on_startup": ImageTk.PhotoImage(Image.open(r"./button_icon/run_on_startup.png").resize((100, 100))),
+        "img_app_default" : ImageTk.PhotoImage(Image.open(r"./button_icon/default_app.png").resize((50,50)))
     }
     
     #add some default buttons
