@@ -1,5 +1,4 @@
 import customtkinter as ctk
-import subprocess
 import Messagebox as msb
 import os
 import sys
@@ -10,6 +9,10 @@ import shutil
 import json
 
 def app_init():
+    #create bin folder if deleted
+    if not os.path.exists('bin'):
+        os.makedirs('bin')
+
     global app, cur
     cur = "@./cursor/cursor.cur"
     app = ctk.CTk()
@@ -69,6 +72,9 @@ def visualize_grid(status=True):
         frames.clear()
           
 def add_button(parent, text, image, command, bg_color, fg_color, width, height, row, column, padx, pady):
+    #split file extension
+    if text != None:
+        text = text.rsplit(".", 1)[0]
     button = ctk.CTkButton(parent, text=text,
                                 image=image, command=command, 
                                 bg_color=bg_color, fg_color=fg_color, 
@@ -82,19 +88,19 @@ def run_on_startup():
                     os.path.join(os.path.expanduser("~"),
                                  "AppData", "Roaming", "Microsoft", "Windows",
                                  "Start Menu", "Programs", "Startup",
-                                 "VVork Space.lnk"), msg=False)
+                                 "VVork Space.lnk"), mess=False)
     msb.CTkMessagebox.messagebox(title="Run on startup!", text="VVork Space will run on startup",
                                  sound="on", button_text="OK", 
                                  size="320x150", center=True, top=True)
-      
-def create_shortcut(target, shortcut_path, msg=True):
+    
+def create_shortcut(target, shortcut_path, mess=True):
     shell = win32com.client.Dispatch("WScript.Shell")
     shortcut = shell.CreateShortCut(shortcut_path)
     shortcut.TargetPath = target
     shortcut.WorkingDirectory = os.path.dirname(target)
     shortcut.IconLocation = target
     shortcut.save()
-    if msg:
+    if mess:
         msb.CTkMessagebox.messagebox(title="Shortcut created!", 
                                      text=f"Shortcut created at:\n{shortcut_path}", 
                                      sound="on", button_text="OK", size="320x150", 
@@ -123,20 +129,31 @@ def setting_init():
     #run on startup button
     add_button(setting_window, "Run on startup",defaut_img.get("img_run_on_startup") , lambda: run_on_startup(), "black", "black", 0, 0, 1, 0, 20, 20)
 
+#fix open some shortcut (using os.startfile instead of subprocess)
 def open_app(file_path):
-    subprocess.Popen(f'start /MAX "" "{file_path}"', shell=True)
+    print(f"Opening: {file_path}")
+    os.startfile(file_path)
     
 def open_file_dialog():
-    file_path = filedialog.askopenfilename()
+    file_path = filedialog.askopenfilename(
+        title="Select a Shortcut",
+        filetypes=[("Shortcut files", "*.lnk"), ("All files", "*.*")]
+    )
+    
     if file_path:
-        print(file_path)
-        choose_icon(file_path)
+        #check if file is shortcut
+        if file_path.lower().endswith('.lnk'):
+            print(f"Selected shortcut: {file_path}")
+            choose_icon(file_path)
+        else:
+            print(f"Selected file: {file_path}")
+            choose_icon(file_path)
     
 def open_folder_dialog():
     folder_path = filedialog.askdirectory()
     if folder_path:
         choose_icon(folder_path)
-    
+          
 def choose_icon(file_path):
     filetypes = [
         ('Image files', '*.png;*.jpg;*.jpeg;*.ico'),
@@ -236,6 +253,7 @@ def place_icon(file_path,icon_path, row, column): #icon_path = new_path = ./butt
     else:
         try:
             app_name = os.path.basename(file_path)
+            app_name, _ = os.path.splitext(app_name)
             defaut_app_icon = defaut_img.get("img_app_default")
             add_button(app, app_name, defaut_app_icon ,lambda: open_app(file_path),
                 "black","black",
