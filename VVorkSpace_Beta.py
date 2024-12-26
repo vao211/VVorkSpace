@@ -136,7 +136,7 @@ def open_app(file_path):
     
 def open_file_dialog():
     file_path = filedialog.askopenfilename(
-        title="Select a Shortcut",
+        title="Select a file or shortcut",
         filetypes=[("Shortcut files", "*.lnk"), ("All files", "*.*")]
     )
     
@@ -163,7 +163,7 @@ def choose_icon(file_path):
     ]
     
     icon_path = filedialog.askopenfilename(
-        title="Choose an icon",
+        title="Choose an icon (or keep blank)",
         filetypes = filetypes
     )
     #note: Thêm tính năg thêm tên app khi icon trống     
