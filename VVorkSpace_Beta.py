@@ -11,7 +11,7 @@ import json
 def app_init():
     #create bin folder if deleted
     if not os.path.exists('bin'):
-        os.makedirs('bin')
+        os.makedirs('./bin')
 
     global app, cur
     cur = "@./cursor/cursor.cur"
