@@ -27,7 +27,6 @@ def app_init():
     app.geometry(f"{window_width}x{window_height}+{x}+{y-20}")
     
     # app.attributes('-fullscreen', True)
-    # app.overrideredirect(True)  # Remove window borders
     
     app.attributes('-fullscreen', True)
     #full screen mode
