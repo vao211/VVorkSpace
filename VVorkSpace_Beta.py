@@ -25,8 +25,16 @@ def app_init():
     x = (screen_width - window_width) // 2
     y = (screen_height - window_height) // 2
     app.geometry(f"{window_width}x{window_height}+{x}+{y-20}")
+    
+    # app.attributes('-fullscreen', True)
+    # app.overrideredirect(True)  # Remove window borders
+    
+    app.attributes('-fullscreen', True)
+    #full screen mode
+    app.bind("<F11>", lambda e: check_full_screen())
+    
     app.config(bg="black", cursor=cur)
-    app.resizable(False, False)
+    app.resizable(True, True)
     
     #grid (5x8)
     app.grid_rowconfigure(0, weight=0)
@@ -50,11 +58,22 @@ def app_init():
     [3, 0] [3, 1] [3, 2] [3, 3] [3, 4] [3, 5] [3, 6] [3, 7]
     [4, 0] [4, 1] [4, 2] [4, 3] [4, 4] [4, 5] [4, 6] [4, 7]
     '''
+
     
-    #exit grid visualization
-    app.bind("<Escape>", lambda event: visualize_grid(status=False))
+    #exit grid visualization   
+    app.bind("<Control-v>", lambda e: visualize_grid(status=True))
+    app.bind("<Control-Shift-V>", lambda e: visualize_grid(status=False))
     global frames
     frames = []
+    
+#check full screen mode status
+def check_full_screen():
+    if app.attributes("-fullscreen") == True:
+        app.attributes("-fullscreen", False)
+        app.overrideredirect(False)
+
+    else:
+        app.attributes("-fullscreen", True)
     
 #visualize_grid()
 def visualize_grid(status=True):
@@ -122,8 +141,8 @@ def setting_init():
     setting_window.geometry(f"{window_width}x{window_height}+{position_right}+{position_down}")
     
     #creat_shortcut button
-    add_button(setting_window, "Create Shortcu", defaut_img.get("img_create_shortcut"), 
-               lambda:  create_shortcut(sys.executable, 
+    add_button(setting_window, "Create Shortcut", defaut_img.get("img_create_shortcut"), 
+               lambda :  create_shortcut(sys.executable, 
                                         os.path.join(os.path.expanduser("~"), "Desktop", "VVork Space.lnk")),
                "black", "black", 0, 0, 0, 0, 20, 20)
     #run on startup button
@@ -267,6 +286,9 @@ def place_icon(file_path,icon_path, row, column): #icon_path = new_path = ./butt
                 center=True,
                 top=True
             )
+            
+    #reload icon after placing
+    app.update_idletasks()
 
 save_file = r"./bin/saved_buttons.json"
 
@@ -347,11 +369,13 @@ def add_app():
     add_app_window.grid_columnconfigure(1, weight=1)
     add_app_window.grid_columnconfigure(2, weight=1)
     add_app_window.grid_columnconfigure(3, weight=1)
-    add_app_window.grid_columnconfigure(4, weight=0) 
+    add_app_window.grid_columnconfigure(4, weight=0)
     
     add_button(add_app_window, "Choose the app", None, lambda: open_file_dialog(), "blue", "blue", 0, 0, 2, 2, 20, 20)
     add_button(add_app_window, "Choose the folder", None, lambda: open_folder_dialog(), "blue", "blue", 0, 0, 3, 2, 20, 20)
-    
+
+def delete_app():
+    pass
     
 
 if __name__ == "__main__":
@@ -365,14 +389,20 @@ if __name__ == "__main__":
         "img_add": ImageTk.PhotoImage(Image.open(r"./button_icon/add.png").resize((100, 100))),
         "img_exit": ImageTk.PhotoImage(Image.open(r"./button_icon/exit.png").resize((100, 100))),
         "img_run_on_startup": ImageTk.PhotoImage(Image.open(r"./button_icon/run_on_startup.png").resize((100, 100))),
-        "img_app_default" : ImageTk.PhotoImage(Image.open(r"./button_icon/default_app.png").resize((50,50)))
+        "img_app_default" : ImageTk.PhotoImage(Image.open(r"./button_icon/default_app.png").resize((50,50))),
+        "img_delete_app": ImageTk.PhotoImage(Image.open(r"./button_icon/delete_app.png").resize((100, 100)))
     }
     
     #add some default buttons
     #setting button
     add_button(app, None, defaut_img.get("img_setting") , lambda: setting_init(), "black", "black", 0, 0, 0, 7, 20, 20)
+    
     #view visualize grid button
-    add_button(app, None ,defaut_img.get("img_visualize") , lambda: visualize_grid(), "black", "black", 0, 0, 0, 0, 20, 20)
+    #add_button(app, None ,defaut_img.get("img_visualize") , lambda: visualize_grid(), "black", "black", 0, 0, 0, 0, 20, 20)
+    
+    #delete app button
+    add_button(app, None, defaut_img.get("img_delete_app"),lambda: delete_app(), "black", "black", 0, 0, 0, 0, 20, 20)
+    
     #add button
     add_button(app, None, defaut_img.get("img_add"), lambda: add_app(), "black", "black", 0, 0, 4, 0, 20, 20)
     #exit button
