@@ -26,8 +26,6 @@ def app_init():
     y = (screen_height - window_height) // 2
     app.geometry(f"{window_width}x{window_height}+{x}+{y-20}")
     
-    # app.attributes('-fullscreen', True)
-    
     app.attributes('-fullscreen', True)
     #full screen mode
     app.bind("<F11>", lambda e: check_full_screen())
@@ -236,8 +234,8 @@ def choose_position(file_path, icon_path): #icon_path = new_path = ./button_path
                 text=f"({row}, {column})",
                 command=lambda r=row, c=column: [
                     place_icon(file_path,icon_path, r, c),
-                    position_window.destroy()
-                ],
+                    position_window.destroy() ]
+                ,
                 width=50,
                 height=50
             )
@@ -342,7 +340,9 @@ def restore_button():
                         5, 5)
         except Exception as e:
             print(f"Error restoring button: {e}")
-            
+
+                    
+                     
 def add_app():
     add_app_window = ctk.CTkToplevel(app)
     add_app_window.title("Add an app to VVorkSpace")
@@ -373,9 +373,45 @@ def add_app():
     add_button(add_app_window, "Choose the app", None, lambda: open_file_dialog(), "blue", "blue", 0, 0, 2, 2, 20, 20)
     add_button(add_app_window, "Choose the folder", None, lambda: open_folder_dialog(), "blue", "blue", 0, 0, 3, 2, 20, 20)
 
-def delete_app():
-    pass
+def chosse_delete_app():
+    delete_window = ctk.CTkToplevel(app)
+    delete_window.title("Delete an App")
+    delete_window.resizable(False, False)
+    delete_window.grab_set()
+    delete_window.config(bg="black")
+
+    screen_width = delete_window.winfo_screenwidth()
+    screen_height = delete_window.winfo_screenheight()
+    window_width = 400
+    window_height = 300
+    position_right = int(screen_width / 2 - window_width / 2)
+    position_down = int(screen_height / 2 - window_height / 2)
+    delete_window.geometry(f"{window_width}x{window_height}+{position_right}+{position_down}")
     
+    for row in range(1, 4):
+        for column in range(1, 7):
+            button = ctk.CTkButton(
+                delete_window,
+                text=f"({row}, {column})",
+                command=lambda r=row, c=column: [delete_app(r, c),
+                delete_window.destroy()],
+                width=50,
+                height=50
+            )
+            button.grid(row=row, column=column, padx=5, pady=5)
+            button.configure(cursor=cur)
+    
+def delete_app(row, column):
+    buttons = load_saved_buttons()
+    for button in buttons:
+        if button['row'] == row and button['column'] == column:
+            buttons.remove(button)
+            save_button_info(file_path=None, icon_path=None, row=row, column=column)
+
+            for widget in app.grid_slaves(): #get all widget
+                if widget.grid_info()["row"] == row and widget.grid_info()["column"] == column:
+                    widget.destroy()
+            break
 
 if __name__ == "__main__":
     app_init()
@@ -400,7 +436,7 @@ if __name__ == "__main__":
     #add_button(app, None ,defaut_img.get("img_visualize") , lambda: visualize_grid(), "black", "black", 0, 0, 0, 0, 20, 20)
     
     #delete app button
-    add_button(app, None, defaut_img.get("img_delete_app"),lambda: delete_app(), "black", "black", 0, 0, 0, 0, 20, 20)
+    add_button(app, None, defaut_img.get("img_delete_app"),lambda: chosse_delete_app(), "black", "black", 0, 0, 0, 0, 20, 20)
     
     #add button
     add_button(app, None, defaut_img.get("img_add"), lambda: add_app(), "black", "black", 0, 0, 4, 0, 20, 20)
