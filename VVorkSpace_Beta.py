@@ -67,8 +67,8 @@ def app_init():
 def check_full_screen():
     if app.attributes("-fullscreen") == True:
         app.attributes("-fullscreen", False)
-        app.overrideredirect(False)
-
+        #app._set_appearance_mode("win")
+        app._windows_set_titlebar_color("dark")
     else:
         app.attributes("-fullscreen", True)
     
