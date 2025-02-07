@@ -1,0 +1,1 @@
+pyinstaller --onefile --noconsole --icon=icon/VVorkSpace.ico VVorkSpace_Beta.py
