@@ -14,9 +14,11 @@ def app_init():
         os.makedirs('./bin')
     if not os.path.exists('bin/resolution.json'):
         with open('bin/resolution.json', 'w') as f:
-            json.dump({"width": 1600, "height": 900, "fullscreen": 0}, f, indent=4)
-            
+            json.dump({"width": 1280, "height": 720, "fullscreen": 0}, f, indent=4)
+    
     global app, cur, app_window_width, app_window_height, screen_stat
+    #load full screen status
+    screen_stat = json.load(open('bin/resolution.json'))['fullscreen']
     app_window_width = json.load(open('bin/resolution.json'))['width']
     app_window_height = json.load(open('bin/resolution.json'))['height']
     cur = "@./cursor/cursor.cur"
@@ -28,10 +30,11 @@ def app_init():
     x = (screen_width - app_window_width) // 2
     y = (screen_height - app_window_height) // 2
     app.geometry(f"{app_window_width}x{app_window_height}+{x}+{y-20}")
-    
-
+        
+    check_startup_full_screen_status()    
     #full screen mode
     # app.attributes('-fullscreen', True)
+
     app.bind("<F11>", lambda e: check_full_screen())
     
     app.config(bg="black", cursor=cur)
@@ -67,25 +70,33 @@ def app_init():
     global frames
     frames = []
     
-    #load full screen status
-    screen_stat = json.load(open('bin/resolution.json'))['fullscreen']
+def check_startup_full_screen_status():
+    if screen_stat == 1:
+        app.attributes("-fullscreen", True)
+    else:
+        app.attributes("-fullscreen", False)
     
 #check full screen mode status
 def check_full_screen():
-    if screen_stat == True:
+    global screen_stat
+    if screen_stat == 1:
         app.attributes("-fullscreen", False)
         #app._set_appearance_mode("win")
         app._windows_set_titlebar_color("dark")
         with open('bin/resolution.json', 'w') as f:
             json.dump({"width": app_window_width, "height": app_window_height,"fullscreen": 0},
                       f, indent=4)
+        screen_stat = 0
+
     else:
         app.attributes("-fullscreen", True)
         with open('bin/resolution.json', 'w') as f:
             json.dump({"width": app_window_width, "height": app_window_height,"fullscreen": 1},
                       f, indent=4)
+        screen_stat = 1
         
 def set_resolution(width, height):
+    global app_window_width, app_window_height
     app_window_width = width
     app_window_height = height
     app.geometry(f"{app_window_width}x{app_window_height}")
@@ -528,7 +539,14 @@ if __name__ == "__main__":
         app.mainloop()
     except KeyError: #resolution.json file lost
         with open('bin/resolution.json', 'w') as f:
-            json.dump({"width": 1600, "height": 900, "fullscreen": 0}, f, indent=4)
+            json.dump({"width": 1280, "height": 720, "fullscreen": 0}, f, indent=4)
+        msb.CTkMessagebox.messagebox(title="Error!", text="Json file error. \nRestart the app to fix", 
+                                     sound="on", button_text="OK", size="320x150",
+                                     center=True, top=True)
+        
+    except(json.JSONDecodeError, FileNotFoundError):  #json file error
+        with open('bin/resolution.json', 'w') as f:
+            json.dump({"width": 1280, "height": 720, "fullscreen": 0}, f, indent=4)
         msb.CTkMessagebox.messagebox(title="Error!", text="Json file error. \nRestart the app to fix", 
                                      sound="on", button_text="OK", size="320x150",
                                      center=True, top=True)

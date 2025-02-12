@@ -5,3 +5,7 @@ bin/*
 bin
 test.py
 venv/
+dist/*
+build/
+*.spec
+.tempFile.py
