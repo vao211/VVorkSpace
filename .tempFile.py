@@ -1,2 +1,0 @@
-
-    global screen_stat

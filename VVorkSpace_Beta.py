@@ -78,7 +78,7 @@ def check_startup_full_screen_status():
     
 #check full screen mode status
 def check_full_screen():
-    global screen_stat
+    global screen_stat 
     if screen_stat == 1:
         app.attributes("-fullscreen", False)
         #app._set_appearance_mode("win")
@@ -99,7 +99,11 @@ def set_resolution(width, height):
     global app_window_width, app_window_height
     app_window_width = width
     app_window_height = height
-    app.geometry(f"{app_window_width}x{app_window_height}")
+    screen_width = app.winfo_screenwidth()
+    screen_height = app.winfo_screenheight()
+    x = (screen_width - app_window_width) // 2
+    y = (screen_height - app_window_height) // 2
+    app.geometry(f"{app_window_width}x{app_window_height}+{x}+{y-20}")
     with open('bin/resolution.json', 'w') as f:
         json.dump({"width": app_window_width, "height": app_window_height, "fullscreen": screen_stat},
                   f, indent=4)
