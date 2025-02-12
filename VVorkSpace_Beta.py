@@ -12,22 +12,26 @@ def app_init():
     #create bin folder if deleted
     if not os.path.exists('bin'):
         os.makedirs('./bin')
-
-    global app, cur
+    if not os.path.exists('bin/resolution.json'):
+        with open('bin/resolution.json', 'w') as f:
+            json.dump({"width": 1600, "height": 900, "fullscreen": 0}, f, indent=4)
+            
+    global app, cur, app_window_width, app_window_height, screen_stat
+    app_window_width = json.load(open('bin/resolution.json'))['width']
+    app_window_height = json.load(open('bin/resolution.json'))['height']
     cur = "@./cursor/cursor.cur"
     app = ctk.CTk()
     app.title("VVorkSpace Beta")
     app.iconbitmap("./icon/VVorkSpace.ico")
     screen_width = app.winfo_screenwidth()
     screen_height = app.winfo_screenheight()
-    window_width = 1600
-    window_height = 900
-    x = (screen_width - window_width) // 2
-    y = (screen_height - window_height) // 2
-    app.geometry(f"{window_width}x{window_height}+{x}+{y-20}")
+    x = (screen_width - app_window_width) // 2
+    y = (screen_height - app_window_height) // 2
+    app.geometry(f"{app_window_width}x{app_window_height}+{x}+{y-20}")
     
-    app.attributes('-fullscreen', True)
+
     #full screen mode
+    # app.attributes('-fullscreen', True)
     app.bind("<F11>", lambda e: check_full_screen())
     
     app.config(bg="black", cursor=cur)
@@ -63,14 +67,32 @@ def app_init():
     global frames
     frames = []
     
+    #load full screen status
+    screen_stat = json.load(open('bin/resolution.json'))['fullscreen']
+    
 #check full screen mode status
 def check_full_screen():
-    if app.attributes("-fullscreen") == True:
+    if screen_stat == True:
         app.attributes("-fullscreen", False)
         #app._set_appearance_mode("win")
         app._windows_set_titlebar_color("dark")
+        with open('bin/resolution.json', 'w') as f:
+            json.dump({"width": app_window_width, "height": app_window_height,"fullscreen": 0},
+                      f, indent=4)
     else:
         app.attributes("-fullscreen", True)
+        with open('bin/resolution.json', 'w') as f:
+            json.dump({"width": app_window_width, "height": app_window_height,"fullscreen": 1},
+                      f, indent=4)
+        
+def set_resolution(width, height):
+    app_window_width = width
+    app_window_height = height
+    app.geometry(f"{app_window_width}x{app_window_height}")
+    with open('bin/resolution.json', 'w') as f:
+        json.dump({"width": app_window_width, "height": app_window_height, "fullscreen": screen_stat},
+                  f, indent=4)
+    app.update_idletasks()
     
 #visualize_grid()
 def visualize_grid(status=True):
@@ -121,12 +143,66 @@ def create_shortcut(target, shortcut_path, mess=True):
                                      text=f"Shortcut created at:\n{shortcut_path}", 
                                      sound="on", button_text="OK", size="320x150", 
                                      center=True, top=True)
-       
+def change_resolution():
+    global change_resolution_window
+    change_resolution_window = ctk.CTkToplevel(setting_window)
+    change_resolution_window.title("Change Resolution")
+    change_resolution_window.resizable(False, False)
+    change_resolution_window.grab_set()
+    change_resolution_window.config(cursor=cur, bg="black")
+    
+    screen_width = setting_window.winfo_screenwidth()
+    screen_height = setting_window.winfo_screenheight()
+    window_width = 480
+    window_height = 320
+    
+    position_right = int(screen_width/2 - window_width/2)
+    position_down = int(screen_height/2 - window_height/2)
+    change_resolution_window.geometry(f"{window_width}x{window_height}+{position_right}+{position_down}")
+
+    #resolution list
+    change_resolution_window.grid_rowconfigure(0, weight=1)
+    change_resolution_window.grid_rowconfigure(1, weight=1)
+    change_resolution_window.grid_rowconfigure(2, weight=1)
+    change_resolution_window.grid_rowconfigure(3, weight=1)
+    change_resolution_window.grid_rowconfigure(4, weight=1)
+    
+    change_resolution_window.grid_columnconfigure(0, weight=1)
+    change_resolution_window.grid_columnconfigure(1, weight=0)
+    change_resolution_window.grid_columnconfigure(2, weight=1)
+    
+    add_button(change_resolution_window, "1920x1080", None, 
+               lambda: [set_resolution(1920, 1080) ,
+                change_resolution_window.destroy(), 
+                setting_window.destroy()]
+               , "black","#0c2c7b", 100, 80, 0, 1,20,20)
+    add_button(change_resolution_window, "1600x900", None, 
+               lambda:[set_resolution(1600, 900),
+                change_resolution_window.destroy(), 
+                setting_window.destroy()],
+                "black", "#0c2c7b", 100, 80, 1, 1, 20, 20)
+    add_button(change_resolution_window, "1366x768", None, 
+               lambda:[set_resolution(1366, 768), 
+                       change_resolution_window.destroy(), 
+                       setting_window.destroy()],
+                "black", "#0c2c7b", 100, 80, 2, 1, 20, 20)
+    add_button(change_resolution_window, "1280x720", None, 
+               lambda:[set_resolution(1280, 720), 
+                       change_resolution_window.destroy(), 
+                       setting_window.destroy()],
+                "black", "#0c2c7b", 100, 80, 3, 1, 20, 20)
+    add_button(change_resolution_window, "900x600", None, 
+               lambda:[set_resolution(900, 600), 
+                       change_resolution_window.destroy(), 
+                       setting_window.destroy()],
+                "black", "#0c2c7b", 100, 80, 4, 1, 20, 20)
+    
 def setting_init():
+    global setting_window
     setting_window = ctk.CTkToplevel(app)
     setting_window.title("Settings")
     setting_window.resizable(False, False)
-    setting_window.grab_set()
+    setting_window.grab_set()  #block other windows
     setting_window.config(cursor=cur, bg="black")
     
     screen_width = setting_window.winfo_screenwidth()
@@ -144,6 +220,8 @@ def setting_init():
                "black", "black", 0, 0, 0, 0, 20, 20)
     #run on startup button
     add_button(setting_window, "Run on startup",defaut_img.get("img_run_on_startup") , lambda: run_on_startup(), "black", "black", 0, 0, 1, 0, 20, 20)
+    
+    add_button(setting_window, "Change resolution", defaut_img.get("img_change_resolution"), lambda: change_resolution() , "black", "black", 0, 0, 2, 0, 20, 20)
 
 #fix open some shortcut (using os.startfile instead of subprocess)
 def open_app(file_path):
@@ -221,8 +299,8 @@ def choose_position(file_path, icon_path): #icon_path = new_path = ./button_path
     
     screen_width = position_window.winfo_screenwidth()
     screen_height = position_window.winfo_screenheight()
-    window_width = 400
-    window_height = 300
+    window_width = 420
+    window_height = 210
     position_right = int(screen_width/2 - window_width/2)
     position_down = int(screen_height/2 - window_height/2)
     position_window.geometry(f"{window_width}x{window_height}+{position_right}+{position_down}")
@@ -236,8 +314,8 @@ def choose_position(file_path, icon_path): #icon_path = new_path = ./button_path
                     place_icon(file_path,icon_path, r, c),
                     position_window.destroy() ]
                 ,
-                width=50,
-                height=50
+                width=60,
+                height=60
             )
             button.grid(row=row, column=column, padx=5, pady=5)
             button.configure(cursor=cur)
@@ -382,8 +460,8 @@ def chosse_delete_app():
 
     screen_width = delete_window.winfo_screenwidth()
     screen_height = delete_window.winfo_screenheight()
-    window_width = 400
-    window_height = 300
+    window_width = 420
+    window_height = 210
     position_right = int(screen_width / 2 - window_width / 2)
     position_down = int(screen_height / 2 - window_height / 2)
     delete_window.geometry(f"{window_width}x{window_height}+{position_right}+{position_down}")
@@ -395,8 +473,8 @@ def chosse_delete_app():
                 text=f"({row}, {column})",
                 command=lambda r=row, c=column: [delete_app(r, c),
                 delete_window.destroy()],
-                width=50,
-                height=50
+                width=60,
+                height=60
             )
             button.grid(row=row, column=column, padx=5, pady=5)
             button.configure(cursor=cur)
@@ -414,35 +492,43 @@ def delete_app(row, column):
             break
 
 if __name__ == "__main__":
-    app_init()
-    
-    #default images
-    defaut_img = {
-        "img_setting": ImageTk.PhotoImage(Image.open(r"./button_icon/setting.png").resize((100, 100))),
-        "img_visualize": ImageTk.PhotoImage(Image.open(r"./button_icon/visualize.png").resize((100, 100))),
-        "img_create_shortcut": ImageTk.PhotoImage(Image.open(r"./button_icon/shortcut.png").resize((100, 100))),
-        "img_add": ImageTk.PhotoImage(Image.open(r"./button_icon/add.png").resize((100, 100))),
-        "img_exit": ImageTk.PhotoImage(Image.open(r"./button_icon/exit.png").resize((100, 100))),
-        "img_run_on_startup": ImageTk.PhotoImage(Image.open(r"./button_icon/run_on_startup.png").resize((100, 100))),
-        "img_app_default" : ImageTk.PhotoImage(Image.open(r"./button_icon/default_app.png").resize((50,50))),
-        "img_delete_app": ImageTk.PhotoImage(Image.open(r"./button_icon/delete_app.png").resize((100, 100)))
-    }
-    
-    #add some default buttons
-    #setting button
-    add_button(app, None, defaut_img.get("img_setting") , lambda: setting_init(), "black", "black", 0, 0, 0, 7, 20, 20)
-    
-    #view visualize grid button
-    #add_button(app, None ,defaut_img.get("img_visualize") , lambda: visualize_grid(), "black", "black", 0, 0, 0, 0, 20, 20)
-    
-    #delete app button
-    add_button(app, None, defaut_img.get("img_delete_app"),lambda: chosse_delete_app(), "black", "black", 0, 0, 0, 0, 20, 20)
-    
-    #add button
-    add_button(app, None, defaut_img.get("img_add"), lambda: add_app(), "black", "black", 0, 0, 4, 0, 20, 20)
-    #exit button
-    add_button(app, None, defaut_img.get("img_exit"), app.destroy, "black", "black", 0, 0, 4, 7, 20, 20)
+    try:
+        app_init()
+        
+        #default images
+        defaut_img = {
+            "img_setting": ImageTk.PhotoImage(Image.open(r"./button_icon/setting.png").resize((100, 100))),
+            "img_visualize": ImageTk.PhotoImage(Image.open(r"./button_icon/visualize.png").resize((100, 100))),
+            "img_create_shortcut": ImageTk.PhotoImage(Image.open(r"./button_icon/shortcut.png").resize((100, 100))),
+            "img_add": ImageTk.PhotoImage(Image.open(r"./button_icon/add.png").resize((100, 100))),
+            "img_exit": ImageTk.PhotoImage(Image.open(r"./button_icon/exit.png").resize((100, 100))),
+            "img_run_on_startup": ImageTk.PhotoImage(Image.open(r"./button_icon/run_on_startup.png").resize((100, 100))),
+            "img_app_default" : ImageTk.PhotoImage(Image.open(r"./button_icon/default_app.png").resize((50,50))),
+            "img_delete_app": ImageTk.PhotoImage(Image.open(r"./button_icon/delete_app.png").resize((100, 100))),
+            "img_change_resolution": ImageTk.PhotoImage(Image.open(r"./button_icon/change_resolution.png").resize((100, 100)))
+        }
+        
+        #add some default buttons
+        #setting button
+        add_button(app, None, defaut_img.get("img_setting") , lambda: setting_init(), "black", "black", 0, 0, 0, 7, 20, 20)
+        
+        #view visualize grid button
+        #add_button(app, None ,defaut_img.get("img_visualize") , lambda: visualize_grid(), "black", "black", 0, 0, 0, 0, 20, 20)
+        
+        #delete app button
+        add_button(app, None, defaut_img.get("img_delete_app"),lambda: chosse_delete_app(), "black", "black", 0, 0, 0, 0, 20, 20)
+        
+        #add button
+        add_button(app, None, defaut_img.get("img_add"), lambda: add_app(), "black", "black", 0, 0, 4, 0, 20, 20)
+        #exit button
+        add_button(app, None, defaut_img.get("img_exit"), app.destroy, "black", "black", 0, 0, 4, 7, 20, 20)
 
-    restore_button()
+        restore_button()
 
-    app.mainloop()
+        app.mainloop()
+    except KeyError: #resolution.json file lost
+        with open('bin/resolution.json', 'w') as f:
+            json.dump({"width": 1600, "height": 900, "fullscreen": 0}, f, indent=4)
+        msb.CTkMessagebox.messagebox(title="Error!", text="Json file error. \nRestart the app to fix", 
+                                     sound="on", button_text="OK", size="320x150",
+                                     center=True, top=True)

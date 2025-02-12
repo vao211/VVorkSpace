@@ -49,3 +49,10 @@ class CTkMessagebox():
             open_sound()
         else:
             pass
+        
+        message_box.wait_window() #wait the window close
+        
+if __name__ == "__main__":
+    CTkMessagebox.messagebox(title="Error!", text="Restart the app to fix", 
+                                     sound="on", button_text="OK", size="320x150",
+                                     center=True, top=True)
