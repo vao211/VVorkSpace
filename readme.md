@@ -2,7 +2,8 @@
 # VVorkSpace Beta
 
 VVorkSpace Beta is a GUI application built with Python that allows users to easily add, manage, and launch other applications from a single window. It provides a friendly and simple interface to help users quickly access their favorite applications.
-###This application works particularly well with secondary touchscreen displays, 
+
+### This application works particularly well with secondary touchscreen displays, 
 ## Features
 
 - **Add Applications**: Easily add applications or folders to your workspace.
