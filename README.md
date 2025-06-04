@@ -1,7 +1,7 @@
 
-# VVorkSpace Beta
+# VVorkSpace
 
-VVorkSpace Beta is a GUI application built with Python that allows users to easily add, manage, and launch other applications from a single window. It provides a friendly and simple interface to help users quickly access their favorite applications.
+VVorkSpace is a GUI application built with Python that allows users to easily add, manage, and launch other applications from a single window. It provides a friendly and simple interface to help users quickly access their favorite applications.
 
 ### This application works particularly well with secondary touchscreen displays, 
 ## Features
@@ -14,8 +14,8 @@ VVorkSpace Beta is a GUI application built with Python that allows users to easi
 ## Installation
 
 1. **Clone the Repository**:
-   git clone https://github.com/vao211/VVorkSpace_Beta
-   cd VVorkSpace_Beta
+   git clone https://github.com/vao211/VVorkSpace
+   cd VVorkSpace
 
 2. **Packaging with PyInstaller**:
     To create a standalone executable of the application, use PyInstaller with the following command:
